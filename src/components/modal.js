@@ -1,91 +1,97 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import Modal from '@material-ui/core/Modal';
-import Backdrop from '@material-ui/core/Backdrop';
-import { useSpring, animated } from 'react-spring/web.cjs'; // web.cjs is required for IE 11 support
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: 'flex',
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles({
+  root: {
+    maxWidth: 345,
+    margin:'10px 15px 10px 10px',
+    display:'inline-block',
     alignItems: 'center',
-    justifyContent: 'center',
+    
   },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
+  media: {
+    
+    width: '290px',
+    height:'300px',
   },
-}));
-
-const Fade = React.forwardRef(function Fade(props, ref) {
-  const { in: open, children, onEnter, onExited, ...other } = props;
-  const style = useSpring({
-    from: { opacity: 0 },
-    to: { opacity: open ? 1 : 0 },
-    onStart: () => {
-      if (open && onEnter) {
-        onEnter();
-      }
-    },
-    onRest: () => {
-      if (!open && onExited) {
-        onExited();
-      }
-    },
-  });
-
-  return (
-    <animated.div ref={ref} style={style} {...other}>
-      {children}
-    </animated.div>
-  );
 });
 
-Fade.propTypes = {
-  children: PropTypes.element,
-  in: PropTypes.bool.isRequired,
-  onEnter: PropTypes.func,
-  onExited: PropTypes.func,
-};
-
-export default function SpringModal() {
+export default function MediaCard({img}) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
-
-  const handleOpen = () => {
+  const [getstr, setGetstr]= React.useState("")
+  console.log(img)
+  const handleOpen = (img) => {
     setOpen(true);
+    console.log('clicked')
+    console.log('url',img)
+  //setGetstr(url)
   };
 
-  const handleClose = () => {
+const handleClose = () => {
     setOpen(false);
+    
   };
-
+  const dialog=()=>{
+    return(
+      <>
+  
+  <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+            <img src= {getstr}></img>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+  
+            <Button onClick={handleClose} color="primary" autoFocus>
+              ok
+            </Button>
+          </DialogActions>
+        </Dialog>
+        </>
+    )
+  
+  }
   return (
-    <div>
-      <button type="button" onClick={handleOpen}>
-        react-spring
-      </button>
-      <Modal
-        aria-labelledby="spring-modal-title"
-        aria-describedby="spring-modal-description"
-        className={classes.modal}
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-      >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <h2 id="spring-modal-title">Spring modal</h2>
-            <p id="spring-modal-description">react-spring animates me.</p>
-          </div>
-        </Fade>
-      </Modal>
-    </div>
+    <>
+    <Card className={classes.root} >
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image={img}
+          title="Contemplative Reptile"
+          display="flex"
+          flexDirection="row"
+          onClick = {()=>{
+            setOpen(true);
+            console.log('url',img)
+            setGetstr(img)
+          }}
+        />
+        </CardActionArea>
+    </Card>
+    {
+        open?dialog():null
+      }
+</>
   );
 }

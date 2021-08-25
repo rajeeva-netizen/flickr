@@ -9,6 +9,19 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import { useEffect, useState } from 'react';
 import axios from 'axios'
+import PropTypes from 'prop-types';
+import Modal from '@material-ui/core/Modal';
+import Backdrop from '@material-ui/core/Backdrop';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
+import MediaCard from './modal'
+import Display from './display'
+import Search from './search'
+//import { useSpring, animated } from 'react-spring/web.cjs';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -64,61 +77,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+
+
 export default function NavBar() {
   const classes = useStyles();
-const [val, setVal] = useState([])
+const [val, setVal] = useState(false)
 const [url, setUrl] = useState([])
 const [searchVal, setSearchVal]=useState("")
 const [searchres, setSearchres]= useState([])
 const [searchurl, setSearchurl]= useState([])
-//useEffect using for displaying the images
-useEffect(()=>{
-  let geturl = []
-  axios.get('https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=b14a77949513551f727ad7f2834e9db3&per_page=10&format=json&nojsoncallback=1')
-  .then((res)=>{
-    console.log(res.data.photos.photo)
-    setVal(res.data.photos.photo)
-    console.log(val)
-    for(var i = 0 ; i<val.length;i++){
-      
-      var photoStaticURL = "https://live.staticflickr.com/" + val[i].server + "/" +  val[i].id + "_" + val[i].secret + "_w.jpg";
-      console.log(photoStaticURL)
-     geturl.push(photoStaticURL)
-      
-    }
-    console.log(geturl)
-    setUrl(geturl)
-  }).catch((err)=>{
-    console.log(err)
-  })
-}, [])
-console.log('data',val)
-console.log('url', url)
+const [clickbool, setClickbool]= useState(false)
+const [open, setOpen] = React.useState(false);
+const [getstr, setGetstr]= useState("")
 
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
-const display = ()=>{
-  console.log(url.length)
-
-return(
-  <>
-  {
-    url.length? url.map(u=>
-    <>
-       <img src = {u}></img>
-    </>
-    ):null
-  }
-  </>
-)
-
-}
-
-
+  const handleClose = () => {
+    setOpen(false);
+  };
 
 const handleInput=(e)=>{
 console.log(e.target.value)
 setSearchVal(e.target.value)
 searchdata()
+setVal(true)
 }
 
 console.log('search', searchVal)
@@ -126,14 +111,14 @@ console.log('search', searchVal)
 //function for searching and displaying the images
 const searchdata=()=>{
   let geturl = []
-  axios.get(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b14a77949513551f727ad7f2834e9db3&per_page=10&format=json&nojsoncallback=1&text=${searchVal}`)
+  axios.get(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b14a77949513551f727ad7f2834e9db3&format=json&nojsoncallback=1&text=${searchVal}`)
   .then(res=>{
-    console.log(res.data.photos.photo)
+    //console.log(res.data.photos.photo)
      setSearchres(res.data.photos.photo)
-     console.log(searchurl)
-    for(var i = 0 ; i<res.data.photos.photo.length;i++){
+     console.log(searchres)
+    for(var i = 0 ; i<searchres.length;i++){
       
-      var photoStaticURL = "https://live.staticflickr.com/" + res.data.photos.photo[i].server + "/" +  res.data.photos.photo[i].id + "_" + res.data.photos.photo[i].secret + "_w.jpg";
+      var photoStaticURL = "https://live.staticflickr.com/" + searchres[i].server + "/" +  searchres[i].id + "_" + searchres[i].secret + "_w.jpg";
      geturl.push(photoStaticURL)
     }
     console.log(geturl)
@@ -145,6 +130,10 @@ const searchdata=()=>{
 
 console.log(searchurl.length)
 console.log('search',searchurl)
+
+
+
+
   return (
 
     <div className={classes.root}>
@@ -170,18 +159,17 @@ console.log('search',searchurl)
           </div>
         </Toolbar>
       </AppBar>
-              <img src = {url}></img>
-      {/* {display()}  */}
-      {/* {searchdata()} */}
-{
-  searchurl.length? searchurl.map(i=>
-  <>
-  <img src = {i}></img>
-  </>
-      ):display()
-    
-}
+
       
+      
+      {/* <Search val={searchVal}/> */}
+              {
+                val?searchurl.map(u=>
+          <>
+             <MediaCard img={u}/>
+          </>
+          ):<Display/>
+              }
     </div>
   );
 }
